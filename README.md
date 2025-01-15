@@ -56,3 +56,11 @@ module: {
   ]
 }
 ```
+
+## babel-loader 的实现
+1. 使用 `babel.getPartialConfig` 获取babel的配置
+2. 使用 `babel.transform` 进行代码转换
+3. 使用 `this.callback` 进行回调,将返回结果传递给下一个loader
+4. 核心调用的是 `@babel/core` 的 `transform` 方法，将预设的配置和options 传递给 `@babel/core` 的 `transform` 方法
+   1. `@babel/core` 包含 `@babel/parse`、`@babel/traverse`、`@babel/generator` 等方法，用于解析、转换和生成代码
+   2. `@babel/preset-env` 是babel的预设，打包了一系列的插件，用于转换各种语法，常见的有 `@babel/plugin-transform-react-jsx`、`@babel/plugin-transform-arrow-functions` 等。

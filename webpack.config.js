@@ -14,9 +14,9 @@ module.exports = {
     //   path.resolve(__dirname, 'loaders'),
     //   'node_modules'
     // ],
-    alias: {
-      'babel-loader': path.resolve(__dirname, 'loaders/babel-loader.js')
-    }
+    // alias: {
+    //   'babel-loader': path.resolve(__dirname, 'loaders/babel-loader.js')
+    // }
   },
   module: {
     rules: [

@@ -81,3 +81,6 @@ module: {
    4. 内联loader 以 `-!` 开头，表示强制使用后置和内联loader，不使用普通、前置loader
    5. 内联loader 以 `!` 开头，表示强制使用后置、内联、前置loader，不使用普通loader
    6. 其他情况表示正常使用后置、普通、内联、前置loader
+4. 执行顺序
+   1. 先执行pitchingLoader，再处理文件，最后再回过头执行normalLoader
+   2. 主要变量：loaderContext、loaderContext.loaderIndex；loaderContext.loaderIndex用于记录执行到哪个loader了；

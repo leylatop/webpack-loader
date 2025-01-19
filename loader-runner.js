@@ -4,8 +4,8 @@ const fs = require('fs')
 function createLoaderObject(loaderPath) {
   // 根据loaderPath，获取loader的主函数函数
   const normal = require(loaderPath)
-  const pitch = loader.pitch
-  const raw = loader.raw || true
+  const pitch = normal.pitch
+  const raw = normal.raw || true
 
   return {
     path: loaderPath,
@@ -18,7 +18,50 @@ function createLoaderObject(loaderPath) {
   }
 }
 
+// 转换参数，根据raw和args[0],将值转成二进制或字符串
+function convertArgs(args, raw) {
+  // 想要二进制格式，但数据不是二进制格式，需要转成二进制
+  if(raw && !Buffer.isBuffer(args[0])) {
+    args[0] = Buffer.from(args[0])
+  }
+  // 不想要二进制格式，但是数据是解析出来的内容是二进制格式，需要转成字符串
+  else if(!raw && Buffer.isBuffer(args[0])) {
+    args[0] = args[0].toString()
+  }
+}
+
+// 递归loader
+function iterateNormalLoaders(processOptions, loaderContext, args, pitchingCallback) {
+  if(loaderContext.loaderIndex < 0) {
+    return pitchingCallback(null, args)
+  }
+  const currentLoader = loaderContext.loaders[loaderContext.loaderIndex]
+  if(currentLoader.normalExecuted) {
+    loaderContext.loaderIndex--
+    return iterateNormalLoaders(processOptions, loaderContext, args, pitchingCallback)
+  }
+  const fn = currentLoader.normal
+  currentLoader.normalExecuted = true
+  convertArgs(args, currentLoader.raw)
+  runSyncOrAsync(fn, loaderContext, args, (err, ...returnArgs) => {
+    return iterateNormalLoaders(processOptions, loaderContext, returnArgs, pitchingCallback)
+  })
+}
+
+function processResource(processOptions, loaderContext, pitchingCallback) {
+  processOptions.readResource(loaderContext.resourcePath, (err, resourceBuffer) => {
+    processOptions.resourceBuffer = resourceBuffer
+    // 开始往回走loader
+    loaderContext.loaderIndex--
+    iterateNormalLoaders(processOptions, loaderContext,[resourceBuffer], pitchingCallback)
+  })
+}
+
 function iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback) {
+  if(loaderContext.loaderIndex >= loaderContext.loaders.length) {
+    // pitch 执行结束，开始读文件
+    return processResource(processOptions, loaderContext, pitchingCallback)
+  }
   const currentLoader = loaderContext.loaders[loaderContext.loaderIndex]
 
   if(currentLoader.pitchExecuted) {
@@ -29,7 +72,7 @@ function iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback)
   // 标识已经执行过这个loader了
   currentLoader.pitchExecuted = true
 
-  // 如果当前loader不存在的话，接着执行下一个loader的pitch
+  // 如果当前loader不存在pitch的话，接着执行下一个loader的pitch
   if(!fn) {
     return iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback)
   }
@@ -39,12 +82,17 @@ function iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback)
     loaderContext.previousRequest,
     loaderContext.data
   ], (err, ...args) => {
-
+    // pitch有返回值，中断
+    if(args.length > 0 && args.some(item => item)) {
+      loaderContext.loaderIndex--
+      return iterateNormalLoaders(processOptions, loaderContext, args, pitchingCallback)
+    } else {
+      return iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback)
+    }
   })
 }
 
 function runSyncOrAsync(fn, loaderContext, args, runCallback) {
-  callback(null, result)
   // 此变量标记当前函数执行是同步还是异步，默认是同步
   let isSync = true
   loaderContext.callback = (err, ...args) => {
@@ -63,6 +111,7 @@ function runSyncOrAsync(fn, loaderContext, args, runCallback) {
   }
   // loader中的this指向loaderContext
   // 同步时，可以将loader或loader.pitch的返回值传给下一个loader
+  // 将args，数组格式传递给pitch或loader
   const result = fn.apply(loaderContext, args)
   if(isSync) {
     runCallback(null, result)
@@ -98,7 +147,7 @@ function runLoaders(options, finalCallback) {
     get() {
       return loaderContext
         .loaders.map(loader => loader.path)
-        .contact(resource)
+        .concat(resource)
         .join('!')
     }
   })
@@ -109,7 +158,7 @@ function runLoaders(options, finalCallback) {
       return loaderContext
         .loaders.slice(loaderContext.loaderIndex + 1) // 不包括当前的
         .map(loader => loader.path)
-        .contact(resource)
+        .concat(resource)
         .join('!')
     }
   })
@@ -120,7 +169,7 @@ function runLoaders(options, finalCallback) {
       return loaderContext
         .loaders.slice(loaderContext.loaderIndex)
         .map(loader => loader.path)
-        .contact(resource)
+        .concat(resource)
         .join('!')
     }
   })
@@ -131,7 +180,7 @@ function runLoaders(options, finalCallback) {
       return loaderContext
         .loaders.slice(0, loaderContext.loaderIndex)
         .map(loader => loader.path)
-        .contact(resource)
+        .concat(resource)
         .join('!')
     }
   })
@@ -146,7 +195,7 @@ function runLoaders(options, finalCallback) {
   // 处理的选项
   let processOptions = {
     resourceBuffer: null, // 读取到的源文件的Buffer内容，要加工的内容，原始模块的原始内容
-    readResource
+    readResource // 读取文件的方法
   }
 
   // 开始迭代pitch
@@ -162,6 +211,6 @@ function runLoaders(options, finalCallback) {
   );
 }
 
-export {
+module.exports = {
   runLoaders
 }

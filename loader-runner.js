@@ -55,6 +55,7 @@ function runSyncOrAsync(fn, loaderContext, args, runCallback) {
    * 1. 将 isSync 设置为false
    * 2. 将 loaderContext.callback 返回
    * 3. 在loader或 loader.pitch 异步执行完毕后再手动执行 loaderContext.callback 方法
+   * 4. 如果不手动执行 loaderContext.callback 后续loader就不会再执行（即时return了内容）
    */
   loaderContext.async = () => {
     isSync = false

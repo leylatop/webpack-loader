@@ -1,5 +1,7 @@
 function loader(sourceContent) {
   console.log('normal2-loader')
+  const callback = this.async()
+  // callback(null, sourceContent+'// normal2-loader')
   return sourceContent+'// normal2-loader';
 }
 

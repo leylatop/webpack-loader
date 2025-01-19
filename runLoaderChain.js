@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const entryFile = path.resolve(__dirname, 'src/index.js');
 // 内联loader
-const request = `!inline1-loader!inline2-loader!${entryFile}`;
+const request = `inline1-loader!inline2-loader!${entryFile}`;
 const rules = [
   {
     test: /\.js$/,
@@ -81,5 +81,5 @@ runLoaders({
   },
   readResource: fs.readFile.bind(fs),
 }, (err, result) => {
-  console.log(err, result)
+  // console.log(err, result)
 })

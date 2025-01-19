@@ -53,6 +53,7 @@ function processResource(processOptions, loaderContext, pitchingCallback) {
     processOptions.resourceBuffer = resourceBuffer
     // 开始往回走loader
     loaderContext.loaderIndex--
+    // 第三个参数会作为loader的参数，传递给loader
     iterateNormalLoaders(processOptions, loaderContext,[resourceBuffer], pitchingCallback)
   })
 }
@@ -77,6 +78,7 @@ function iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback)
     return iteratePitchingLoaders(processOptions, loaderContext, pitchingCallback)
   }
 
+  // 第三个参数，会当做loader的pitch方法的参数传过去
   runSyncOrAsync(fn, loaderContext, [
     loaderContext.remainingRequest,
     loaderContext.previousRequest,
@@ -112,6 +114,7 @@ function runSyncOrAsync(fn, loaderContext, args, runCallback) {
   // loader中的this指向loaderContext
   // 同步时，可以将loader或loader.pitch的返回值传给下一个loader
   // 将args，数组格式传递给pitch或loader
+  // 调用apply时，会把args展开，逐个传递给fn，这也是args设计为数组的巧妙之处
   const result = fn.apply(loaderContext, args)
   if(isSync) {
     runCallback(null, result)

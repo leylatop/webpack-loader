@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  devtool: 'source-map',
+  devtool: false,
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -20,17 +20,29 @@ module.exports = {
   },
   module: {
     rules: [
+      // {
+      //   test: /\.js$/,
+      //   use: [
+      //     {
+      //       loader: path.resolve(__dirname, 'loaders/babel-loader.js'),
+      //       // loader: 'babel-loader',
+      //       options: {
+      //         presets: ['@babel/preset-env']
+      //       }
+      //     }
+      //   ]
+      // }
       {
-        test: /\.js$/,
+        test: /\.css$/,
         use: [
           {
-            loader: path.resolve(__dirname, 'loaders/babel-loader.js'),
-            // loader: 'babel-loader',
+            loader: 'css-loader',
             options: {
-              presets: ['@babel/preset-env']
+              esModule: false
             }
           }
-        ]
+        ],
+        include: path.resolve('src')
       }
     ]
   },

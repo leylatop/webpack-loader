@@ -36,7 +36,14 @@ module.exports = {
         test: /\.css$/,
         use: [
           {
-            loader: 'css-loader',
+            loader: path.resolve('loaders/style-loader.js'),
+            options: {
+              esModule: false
+            }
+          },
+          {
+            // loader: 'css-loader',
+            loader: path.resolve('loaders/css-loader.js'),
             options: {
               esModule: false
             }

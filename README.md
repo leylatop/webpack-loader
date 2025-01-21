@@ -84,3 +84,13 @@ module: {
 4. 执行顺序
    1. 先执行pitchingLoader，再处理文件，最后再回过头执行normalLoader
    2. 主要变量：loaderContext、loaderContext.loaderIndex；loaderContext.loaderIndex用于记录执行到哪个loader了；
+
+## loader 的实现
+1. 一个loader就是一个函数，而且这个函数接收一个source，返回一个处理后的source
+2. loader.pitch 是loader的pitch方法，pitch函数接收多个参数，包括：
+    - remainingRequest: 剩余的loader
+    - previousRequest: 上一个loader
+    - data: 用于在pitch和loader之间传递数据
+3. 先执行loader.pitch 方法，再执行loader
+4. 如果loader.pitch 返回undefined，则执行loader
+5. 如果loader.pitch 返回非undefined，则停止执行loader.pitch，直接执行前一个loader；且返回值会作为参数传递给下一个loader

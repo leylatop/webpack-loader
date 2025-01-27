@@ -94,3 +94,17 @@ module: {
 3. 先执行loader.pitch 方法，再执行loader
 4. 如果loader.pitch 返回undefined，则执行loader
 5. 如果loader.pitch 返回非undefined，则停止执行loader.pitch，直接执行前一个loader；且返回值会作为参数传递给下一个loader
+
+
+
+## css-loader 的实现
+1. 使用 `postcss-value-parser` 解析css中的值
+2. 使用 `postcss` 处理css中的值
+3. 使用 `postcss-modules-extract-imports` 提取css中的import
+4. 使用 `postcss-modules-local-by-default` 处理css中的local
+5. 使用 `postcss-modules-scope` 处理css中的scope
+6. 使用 `postcss-modules-values` 处理css中的values
+7. 使用 `postcss-modules-extract-imports` 提取css中的import
+8. 使用 `postcss-modules-local-by-default` 处理css中的local
+9. 使用 `postcss-modules-scope` 处理css中的scope
+10. 使用 `postcss-modules-values` 处理css中的values

@@ -13,9 +13,20 @@ function getImportCode(imports, options) {
  * @param {*} result 
  * @returns 
  */
-function getModuleCode(result) {
-  const code = JSON.stringify(result.css)
-  const beforeCode = `var cssLoaderExport = cssLoaderApiImport(cssLoaderApiNoSourceMapImport); \n`
+function getModuleCode(result, replacements) {
+  let code = JSON.stringify(result.css)
+  let beforeCode = `var cssLoaderExport = cssLoaderApiImport(cssLoaderApiNoSourceMapImport); \n`
+  for(let item of replacements) {
+    // importName 是url方法中的路径
+    // replacementName 是替换后的路径
+    const { importName, replacementName } = item
+    beforeCode += `var ${replacementName} = cssLoaderGetUrlImport(${importName}); \n`
+
+    code = code.replace(
+      new RegExp(replacementName, 'g'),
+      () => `" + ${replacementName} + "`
+    )
+  }
   return `${beforeCode}cssLoaderExport.push([module.id, ${code} ]); \n`
 }
 

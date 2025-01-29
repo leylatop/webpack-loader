@@ -9,7 +9,7 @@ function loader(sourceContent) {
   const plugins = []
 
   postcss(plugins)
-    .process(sourceContent)
+    .process(sourceContent, { from: this.resourcePath, to: this.resourcePath })
     .then((result) => {
       const imports = [
         {

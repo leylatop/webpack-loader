@@ -36,18 +36,23 @@ module.exports = {
         test: /\.css$/,
         use: [
           {
-            // loader: 'style-loader',
-            loader: path.resolve('loaders/style-loader'),
+            loader: 'style-loader',
+            // loader: path.resolve('loaders/style-loader'),
           },
           {
-            // loader: 'css-loader',
-            loader: path.resolve('loaders/css-loader'),
+            loader: 'css-loader',
+            // loader: path.resolve('loaders/css-loader'),
             options: {
-              esModule: false
+              esModule: false,
+              url: true, // 将value值中的url(./demo.png) 转换为webpack更改后的路径
             }
           }
         ],
         include: path.resolve('src')
+      },
+      {
+        test: /\.(png|jpg|gif)$/,
+        type: 'asset/resource', // webpack 5 的资源模块，会将图片的文件名改为哈希值，并且将图片打包到dist目录下
       }
     ]
   },

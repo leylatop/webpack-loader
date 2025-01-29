@@ -36,12 +36,12 @@ module.exports = {
         test: /\.css$/,
         use: [
           {
-            loader: 'style-loader',
-            // loader: path.resolve('loaders/style-loader'),
+            // loader: 'style-loader',
+            loader: path.resolve('loaders/style-loader'),
           },
           {
-            loader: 'css-loader',
-            // loader: path.resolve('loaders/css-loader'),
+            // loader: 'css-loader',
+            loader: path.resolve('loaders/css-loader'),
             options: {
               esModule: false,
               url: true, // 将value值中的url(./demo.png) 转换为webpack更改后的路径

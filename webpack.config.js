@@ -36,16 +36,29 @@ module.exports = {
         test: /\.css$/,
         use: [
           {
-            loader: 'style-loader',
-            // loader: path.resolve('loaders/style-loader'),
+            // loader: 'style-loader',
+            loader: path.resolve('loaders/style-loader'),
           },
           {
-            loader: 'css-loader',
-            // loader: path.resolve('loaders/css-loader'),
+            // loader: 'css-loader',
+            loader: path.resolve('loaders/css-loader'),
             options: {
               esModule: false,
               url: true, // 将value值中的url(./demo.png) 转换为webpack更改后的路径
+              import: true, // 将@import(./basic.css) 转换为webpack更改后的路径
+              /**
+               * 使用@import 引入的文件，比如basic.css，再往后执行1个loader，即logger-loader1
+               * 如果设置为2，则basic.css再往后执行2个loader，即logger-loader1和logger-loader2
+               * 只会影响到@import引入的文件，不会影响到主文件，如果没有特别设置主文件会执行后面所有的loader
+               */
+              importLoaders: 1
             }
+          },
+          {
+            loader: path.resolve('loaders/logger-loader1'),
+          },
+          {
+            loader: path.resolve('loaders/logger-loader2'),
           }
         ],
         include: path.resolve('src')

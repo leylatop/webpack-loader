@@ -13,9 +13,12 @@ function getImportCode(imports, options) {
  * @param {*} result 
  * @returns 
  */
-function getModuleCode(result, replacements) {
+function getModuleCode(result, api, replacements) {
   let code = JSON.stringify(result.css)
   let beforeCode = `var cssLoaderExport = cssLoaderApiImport(cssLoaderApiNoSourceMapImport); \n`
+  for(let item of api) {
+    beforeCode += `cssLoaderExport.i(${item.importName});\n`
+  }
   for(let item of replacements) {
     // importName 是url方法中的路径
     // replacementName 是替换后的路径
@@ -61,7 +64,24 @@ function stringifyRequest(loaderContext, request) {
   return JSON.stringify(loaderContext.utils.contextify(loaderContext.context, request))
 }
 
+
+function getPreRequester(loaderContext, options) {
+  const { loaders, loaderIndex } = loaderContext
+  const { importLoaders } = options
+
+  // 除了当前loader，再往前执行importLoaders个loader
+  const loadersRequest = loaders.slice(loaderIndex, loaderIndex + 1 + importLoaders).map(x => x.request).join('!')
+  return "-!" + loadersRequest + "!"
+}
+
+function combineRequests(preRequest, url) {
+  return preRequest + url
+}
+
+
 exports.getImportCode = getImportCode
 exports.getModuleCode = getModuleCode
 exports.getExportCode = getExportCode
 exports.stringifyRequest = stringifyRequest
+exports.combineRequests = combineRequests
+exports.getPreRequester = getPreRequester

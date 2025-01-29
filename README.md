@@ -97,14 +97,7 @@ module: {
 
 
 
-## css-loader 的实现
-1. 使用 `postcss-value-parser` 解析css中的值
-2. 使用 `postcss` 处理css中的值
-3. 使用 `postcss-modules-extract-imports` 提取css中的import
-4. 使用 `postcss-modules-local-by-default` 处理css中的local
-5. 使用 `postcss-modules-scope` 处理css中的scope
-6. 使用 `postcss-modules-values` 处理css中的values
-7. 使用 `postcss-modules-extract-imports` 提取css中的import
-8. 使用 `postcss-modules-local-by-default` 处理css中的local
-9. 使用 `postcss-modules-scope` 处理css中的scope
-10. 使用 `postcss-modules-values` 处理css中的values
+## css-loader
+1. 使用 `postcss` 将css代码转换成css语法树
+2. 使用 `postcss-value-parser` 解析css中语法树中的值，用于替换css值中的方法，比如`url(./demo.png)`
+3. 使用 `postcss-selector-parser` 处理css中语法树中的选择器，用于替换css中的local

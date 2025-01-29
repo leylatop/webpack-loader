@@ -18,9 +18,11 @@ loader.pitch = function (remainingRequest) {
 
     const style = document.createElement('style');
 
-    style.innerHTML = content;
+    style.innerHTML = (content.default || content).toString();
 
     document.head.appendChild(style);
+
+    module.exports = style;
   `
 
   return contentCode

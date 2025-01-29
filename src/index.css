@@ -1,4 +1,5 @@
+@import './basic.css';
 body {
   color: red;
-  background-image: url('./demo.png');
+  /* background-image: url('./demo.png'); */
 }

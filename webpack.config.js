@@ -53,7 +53,8 @@ module.exports = {
                */
               importLoaders: 1,
               modules: {
-                mode: 'local'
+                mode: 'local',
+                exportOnlyLocals: false // 是否只导出局部变量，默认false，导出全局变量，当设置为true时，会与style-loader冲突
               }
             }
           },

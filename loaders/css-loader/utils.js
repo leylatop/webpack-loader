@@ -43,13 +43,17 @@ function getExportCode(exports, options) {
   let code = ''
   let localsCode = ''
   function addExportToLocalsCode(name, value) {
-    if(localsCode) {
+    if (localsCode) {
       localsCode += `,\n`
     }
     localsCode += `\t${JSON.stringify(name)}: ${JSON.stringify(value)}`
   }
   for (const { name, value } of exports) {
     addExportToLocalsCode(name, value);
+  }
+  if (options.modules.exportOnlyLocals) {
+    code += `${options.esModule ? "export default" : "module.exports ="} {\n${localsCode}\n};\n`;
+    return code;
   }
   code += `cssLoaderExport.locals = {${`\n${localsCode}\n`}};\n`
   let finalExport = 'cssLoaderExport'

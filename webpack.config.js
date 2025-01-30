@@ -36,12 +36,12 @@ module.exports = {
         test: /\.css$/,
         use: [
           {
-            loader: 'style-loader',
-            // loader: path.resolve('loaders/style-loader'),
+            // loader: 'style-loader',
+            loader: path.resolve('loaders/style-loader'),
           },
           {
-            loader: 'css-loader',
-            // loader: path.resolve('loaders/css-loader'),
+            // loader: 'css-loader',
+            loader: path.resolve('loaders/css-loader'),
             options: {
               esModule: false,
               url: true, // 将value值中的url(./demo.png) 转换为webpack更改后的路径
@@ -53,8 +53,7 @@ module.exports = {
                */
               importLoaders: 1,
               modules: {
-                mode: 'local',
-                exportOnlyLocals: false // 是否只导出局部变量，默认false，导出全局变量，当设置为true时，会与style-loader冲突
+                mode: 'local'
               }
             }
           },

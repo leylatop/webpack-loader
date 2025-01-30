@@ -22,7 +22,7 @@ loader.pitch = function (remainingRequest) {
 
     document.head.appendChild(style);
 
-    module.exports = style;
+    module.exports = content
   `
 
   return contentCode

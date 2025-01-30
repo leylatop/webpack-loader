@@ -1,8 +1,12 @@
-const { getImportCode, stringifyRequest, getModuleCode, getExportCode, getPreRequester, combineRequests } = require('./utils')
+const { getImportCode, stringifyRequest, getModuleCode, getExportCode, getPreRequester, combineRequests,
+  shouldUseModulesPlugins,
+  shouldUseIcssPlugin,
+  getModulesPlugins
+ } = require('./utils')
 const postcss = require('postcss')
 const postcssUrlParser = require('./plugins/postcss-url-parser')
 const postcssImportParser = require('./plugins/postcss-import-parser')
-
+const postcssIcssParser = require('./plugins/postcss-icss-parser')
 function loader(sourceContent) {
   // 获取 loader 的配置选项
   const options = this.getOptions();
@@ -10,6 +14,11 @@ function loader(sourceContent) {
   const callback = this.async();
 
   const plugins = []
+
+  if(shouldUseModulesPlugins(options)){
+    plugins.push(...getModulesPlugins(this))
+  }
+
   // urlParser中需要放到imports中的部分
   const urlPluginImports = []
   // urlParser中需要在getModuleCode中替换的url
@@ -32,7 +41,12 @@ function loader(sourceContent) {
       urlHandler: url => stringifyRequest(this, combineRequests(getPreRequester(this, options), url))
     }))
   }
-  
+  const postcssIcssParserExports = []
+  if(shouldUseIcssPlugin(options)){
+    plugins.push(postcssIcssParser({
+      exports: postcssIcssParserExports
+    }))
+  }
 
   postcss(plugins)
     .process(sourceContent, { from: this.resourcePath, to: this.resourcePath })
@@ -50,7 +64,7 @@ function loader(sourceContent) {
       imports.push(...urlPluginImports, ...importPluginImports)
       const importCode = getImportCode(imports)
       const moduleCode = getModuleCode({ css: result.css }, importPluginApi, urlPluginReplacements)
-      const exportCode = getExportCode(options)
+      const exportCode = getExportCode(postcssIcssParserExports, options)
       callback(null, importCode + moduleCode + exportCode)
     })
 }

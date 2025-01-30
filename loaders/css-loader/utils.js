@@ -1,3 +1,5 @@
+const postcssModulesScope = require("../../postcss-modules-scope");
+
 function getImportCode(imports, options) {
   let code = ''
   // 遍历imports，生成import代码
@@ -16,10 +18,10 @@ function getImportCode(imports, options) {
 function getModuleCode(result, api, replacements) {
   let code = JSON.stringify(result.css)
   let beforeCode = `var cssLoaderExport = cssLoaderApiImport(cssLoaderApiNoSourceMapImport); \n`
-  for(let item of api) {
+  for (let item of api) {
     beforeCode += `cssLoaderExport.i(${item.importName});\n`
   }
-  for(let item of replacements) {
+  for (let item of replacements) {
     // importName 是url方法中的路径
     // replacementName 是替换后的路径
     const { importName, replacementName } = item
@@ -37,10 +39,21 @@ function getModuleCode(result, api, replacements) {
  * 定义一个函数，用于生成导出代码
  * @param {*} options 
  */
-function getExportCode(options) {
+function getExportCode(exports, options) {
   let code = ''
+  let localsCode = ''
+  function addExportToLocalsCode(name, value) {
+    if(localsCode) {
+      localsCode += `,\n`
+    }
+    localsCode += `\t${JSON.stringify(name)}: ${JSON.stringify(value)}`
+  }
+  for (const { name, value } of exports) {
+    addExportToLocalsCode(name, value);
+  }
+  code += `cssLoaderExport.locals = {${`\n${localsCode}\n`}};\n`
   let finalExport = 'cssLoaderExport'
-  if(options.esModule) {
+  if (options.esModule) {
     code += `export default ${finalExport} \n;`
   } else {
     code += `module.exports = ${finalExport} \n;`
@@ -79,9 +92,33 @@ function combineRequests(preRequest, url) {
 }
 
 
+function shouldUseModulesPlugins(options) {
+  if (typeof options.modules === "boolean" && options.modules === false) {
+    return false;
+  }
+  return true
+}
+
+function shouldUseIcssPlugin(options) {
+  return Boolean(options.modules)
+}
+
+function getModulesPlugins(loaderContext) {
+  const plugins = [
+    postcssModulesScope({
+      loaderContext
+    })
+  ]
+  return plugins
+}
+
+
 exports.getImportCode = getImportCode
 exports.getModuleCode = getModuleCode
 exports.getExportCode = getExportCode
 exports.stringifyRequest = stringifyRequest
 exports.combineRequests = combineRequests
 exports.getPreRequester = getPreRequester
+exports.shouldUseModulesPlugins = shouldUseModulesPlugins
+exports.getModulesPlugins = getModulesPlugins
+exports.shouldUseIcssPlugin = shouldUseIcssPlugin
